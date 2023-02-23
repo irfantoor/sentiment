@@ -56,6 +56,21 @@ class Model(ABC):
 
         self._backend.save(model_name)
 
+    def get_backend(self):
+        return self._backend
+
+    def get_ui(self):
+        return self._ui
+
+    def get_transformer(self):
+        return self._transformer
+
+    def get_model(self):
+        return self._model
+
+    def get_vectorizer(self):
+        return self._vectorizer
+
     def predict(self, X_test):
         if self._model is None:
             raise Exception("No model has been loaded")

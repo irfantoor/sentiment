@@ -7,6 +7,7 @@
 from abc import ABC
 import os
 import re
+import pickle
 
 class FileSystem(ABC):
     _root = ''
@@ -34,7 +35,19 @@ class FileSystem(ABC):
         return ll
 
     def load(self, model_name:str):
-        pass
+        """ Loads the model from a given pickle file
+        """
+        path = os.path.join(self._root, self._normalize(model_name))
+        if not os.path.exists(path):
+            raise Exception(f'Model: {model_name}, not found')
 
-    def save(self, model_name:str):
-        pass
+        return pickle.load(open(path, "rb"))
+
+    def save(self, model_name:str, model):
+        """ Saves the model to a given pickle file
+        """
+        path = os.path.join(self._root, self._normalize(model_name))
+        if os.path.exists(path):
+            raise Exception(f'Model: {model_name}, already exists')
+
+        pickle.dump(model, path)

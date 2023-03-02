@@ -12,7 +12,11 @@ import pickle
 class FileSystem(ABC):
     _root = ''
 
-    def __init__(self, root:os.path) -> None:
+    def __init__(self, root:os.path=None) -> None:
+        if root is not None:
+            self.set_root(root)
+
+    def set_root(self, root):
         if not os.path.exists(root):
             raise Exception(f'path : {root}, does not exist')
 

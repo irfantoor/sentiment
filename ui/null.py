@@ -2,22 +2,23 @@
 # -*- coding: utf-8 -*-
 # DATE: 2023/02/22
 # Author: Irfan TOOR
-# file : ui/fastapi.py
+# file : ui/flask.py
 
 from abc import ABC
-
 import uvicorn
-from fastapi import FastAPI
 
-class FastApi(ABC):
+class Null(ABC):
     _app = None
 
     def __init__(self) -> None:
         pass
-        self._app = FastAPI()
+        self._app = {}
 
     def app(self):
-        return self._app
+        return None
+
+    def request(self):
+        return None
 
     def serve(self, port=8000):
         uvicorn.run(self._app, host='127.0.0.1', port=port)

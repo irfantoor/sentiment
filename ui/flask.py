@@ -13,6 +13,7 @@ class Flask(ABC):
     _app = None
 
     def __init__(self) -> None:
+        pass
         self._app = RealFlask(__name__)
 
     def app(self):

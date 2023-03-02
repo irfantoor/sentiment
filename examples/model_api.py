@@ -1,27 +1,51 @@
-# API for analysing the sentiments of a tweet
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+# DATE: 2023/02/08
+# Author: Irfan TOOR <email@irfantoor.com>
+# file : examples/model_api.py
 
-A small framework to manage processing of models for the sentiment analysis.
+# Note : It is an example file
+#        Copy this file to your virtualenv root folder
 
-It consists of the following components:
+"""
+# --------------------------------------------------------
+# copy to virtualenv root folder:
+% cp sentiment/examples/model_api.py .
 
-- With the operational backends:
-    - Filesystem
-    - MLFlow
-    - AWS (in progress)
-    - Azure (in progress)
+# --------------------------------------------------------
+# lanch the api:
 
-- UI Connectivity :
-    - Flask
-    - FastAPI
-- Pipeline
-- Transformer (in progress)
-- Unit-Testing (in progress)
-- CI (connectivity with heroku is prevu, in progress)
+% pipenv run python model_api.py
 
-Here is an example of using the sentiment framework :
+or
 
-```py
-# file : model_api.py
+% pipenv shell
+(venv ...) % python model_api.py
+
+# --------------------------------------------------------
+# through console:
+curl -X POST localhost:8001/predict/ \
+-H 'Content-Type: application/json' \
+-d '{"phrases": ["I love the world", ",but I am tired"]}'
+
+# --------------------------------------------------------
+# progamatically:
+import requests
+import json
+
+phrases = [
+    "I love this world",
+    "Destiny of human is doomed!"
+]
+
+for phrase in phrases:
+    response = requests.post(
+        'http://localhost:8001/predict/',
+        data=json.dumps({'phrase': phrase})
+        )
+    pred = json.loads(response.text)
+    print(pred)
+"""
 
 from sentiment import Model
 from sentiment.backend import FileSystem
@@ -71,8 +95,3 @@ def catch_all(path):
 
 # serve the model
 model.serve(port=8001)
-```
-
-```sh
-(.venv) % python model_api.py
-```

@@ -5,7 +5,6 @@
 # file : pipeline.py
 
 from abc import ABC
-import pandas as pd
 import spacy
 import string
 import re
@@ -37,8 +36,6 @@ class Pipeline(ABC):
         use_stemming:bool=False,
         use_lemmatization:bool=True
         ) -> None:
-        return
-        super().__init__()
 
         self.add_to_stopwords(add_to_stopwords)
         self.remove_from_stopwords(remove_from_stopwords)
@@ -129,6 +126,8 @@ class Pipeline(ABC):
 
     def _process_text(self, text:str):
         """process a single line of text, passing it through the pipeline"""
+        # todo -- translate to be added for special chars like : @&<>?,.;/: etc.
+
         # espace suplémentaires => ' '
         text = self._re_whitespace.sub(' ', text)
 
@@ -187,5 +186,8 @@ class Pipeline(ABC):
         """process the given list of sentences"""
         if (not self._pipeline_built):
             self.build()
+
+        if isinstance(phrases, str):
+            phrases = [phrases]
 
         return [self._process_text(phrase) for phrase in phrases]

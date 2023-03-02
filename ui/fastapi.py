@@ -6,18 +6,16 @@
 
 from abc import ABC
 
-import uvicorn
-from fastapi import FastAPI
-
 class FastApi(ABC):
     _app = None
 
     def __init__(self) -> None:
-        pass
+        from fastapi import FastAPI
         self._app = FastAPI()
 
     def app(self):
         return self._app
 
     def serve(self, port=8000):
+        import uvicorn
         uvicorn.run(self._app, host='127.0.0.1', port=port)

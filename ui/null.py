@@ -5,7 +5,6 @@
 # file : ui/flask.py
 
 from abc import ABC
-import uvicorn
 
 class Null(ABC):
     _app = None
@@ -21,4 +20,5 @@ class Null(ABC):
         return None
 
     def serve(self, port=8000):
+        import uvicorn
         uvicorn.run(self._app, host='127.0.0.1', port=port)

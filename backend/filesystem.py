@@ -8,6 +8,7 @@ from abc import ABC
 import os
 import re
 import pickle
+from keras.models import load_model
 
 class FileSystem(ABC):
     _root = ''
@@ -41,11 +42,22 @@ class FileSystem(ABC):
     def load(self, model_name:str):
         """ Loads the model from a given pickle file
         """
+        model = None
+        tokenizer = None
+        vectorizer = None
+
         path = os.path.join(self._root, self._normalize(model_name))
         if not os.path.exists(path):
             raise Exception(f'Model: {model_name}, not found')
 
-        return pickle.load(open(path, "rb"))
+        if (model_name.endswith('.b') or model_name.endswith('.pkl')):
+            return pickle.load(open(path, "rb"))
+        elif (model_name.endswith('.h5')):
+            return load_model(path)
+        elif (model_name.endswith('.tf')):
+            raise Exception('not implemented')
+        else:
+            raise Exception('extension can only be : .pkl, .b, .h5 or .tf')
 
     def save(self, model_name:str, model):
         """ Saves the model to a given pickle file
@@ -54,4 +66,9 @@ class FileSystem(ABC):
         if os.path.exists(path):
             raise Exception(f'Model: {model_name}, already exists')
 
-        pickle.dump(model, path)
+        if (model_name.endswith('.h5') or model_name.endswith('.tf')):
+            model.save(path)
+        elif (model_name.endswith('.tf')):
+            model.save(path)
+        else:
+            pickle.dump(model, path)

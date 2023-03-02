@@ -8,10 +8,9 @@ from abc import ABC
 import sentiment.backend as Model_Backend
 import sentiment.ui as Model_UI
 import sentiment.transformer as Model_Transformer
-from sentiment.text import Tokenizer
+from sentiment.pipeline import Pipeline
 from sentiment.text import pad_sequences
-
-import pandas as pd
+import numpy as np
 
 class Model(ABC):
     """
@@ -28,16 +27,30 @@ class Model(ABC):
     _backend = None
     _ui = None
     _transformer = None
+    _pipeline = None
     _model = None
     _vectorizer = None
     _tokenizer = None
 
     # tokenizer
-    _max_len = 100
+    _max_len = 128
     _num_words = 20000
 
-    def __init__(self, backend=None, ui=None, transformer=None):
-        return
+    # internal
+    _prepared = False
+
+    def __init__(self, backend=None, ui=None, transformer=None, pipeline=None):
+        if backend is not None:
+            self.backend(backend)
+
+        if ui is not None:
+            self.ui(ui)
+
+        if transformer is not None:
+            self.transformer(transformer)
+
+        if pipeline is not None:
+            self.pipeline(pipeline)
 
     def backend(self, backend:Model_Backend):
         self._backend = backend
@@ -45,30 +58,53 @@ class Model(ABC):
     def ui(self, ui:Model_UI):
         self._ui = ui
 
-    def transformer(self, transformer:Model_Transformer):
+    def transformer(self, transformer):
         self._transformer = transformer
 
-    def int_tokenizer(self, phrases, num_words:int=20000, max_len:int=100):
-        self._max_len = max_len
-        self._num_words = num_words
-        self._tokenizer = Tokenizer(num_words=num_words)
-        self._tokenizer.fit_on_texts(phrases)
+    def pipeline(self, pipeline:Pipeline):
+        self._pipeline = pipeline
 
-    def load(self, model_name:str):
+    def prepare(self):
+        if self._prepared:
+            return
+
+        if not self._prepared:
+            self._prepared = True
+            if self._pipeline is None:
+                self._pipeline = Pipeline()
+                self._pipeline.build()
+
+    # tood -- all of the seting parts to be done later
+    # todo -- num_words, max_len could be loaded through tokenizer
+
+    # def int_tokenizer(self, phrases, num_words:int=20000, max_len:int=128):
+    #     from sentiment.text import Tokenizer
+    #     self._max_len = max_len
+    #     self._num_words = num_words
+    #     self._tokenizer = Tokenizer(num_words=num_words)
+    #     self._tokenizer.fit_on_texts(phrases)
+
+    def _load(self, name:str):
         if self._backend is None:
             raise Exception("Backend is not defined")
 
-        result = self._backend.load(model_name)
-        if isinstance(result, tuple):
-            self._vectorizer, self._model = result
-        else:
-            self._model = result
+        return self._backend.load(name)
 
-    def save(self, model_name:str):
+    def load(self, name:str):
+        self._model = self._load(name)
+
+    def vectorizer(self, name:str):
+        self._vectorizer = self._load(name)
+
+    def tokenizer(self, name:str):
+        # todo -- must reload the num_words and max_len etc.
+        self._tokenizer = self._load(name)
+
+    def save(self, name:str):
         if self._backend is None:
             raise Exception("Backend is not defined")
 
-        self._backend.save(model_name)
+        self._backend.save(name)
 
     def get_backend(self):
         return self._backend
@@ -79,7 +115,10 @@ class Model(ABC):
     def get_transformer(self):
         return self._transformer
 
-    def get_model(self):
+    def get_pipeline(self):
+        return self._pipeline
+
+    def get_raw(self):
         return self._model
 
     def get_vectorizer(self):
@@ -92,11 +131,11 @@ class Model(ABC):
         if self._model is None:
             raise Exception("No model has been loaded")
 
-        if isinstance(phrases, str):
-            phrases = [phrases]
+        if not self._prepared:
+            self.prepare()
 
         # pipeline
-        data = [self.pipeline(phrase) for phrase in phrases]
+        data = self._pipeline.process(phrases)
 
         # vectorize
         if self._vectorizer is not None:
@@ -108,14 +147,17 @@ class Model(ABC):
             data = pad_sequences(sequences, maxlen=self._max_len)
 
         # predict
-        try:
-            pred = self._model.predict(data)
-        except:
-            data = pd.DataFrame(
-                data.toarray(),
-                columns = self._model.feature_names_in_
-            )
-            pred = self._model.predict(data)
+        # try:
+        pred = self._model.predict(data)
+
+        # todo -- adjust for the models requiring DataFrame etc.
+        #         ex : Models using vectorizers
+        # except:
+        #     data = pd.DataFrame(
+        #         list(data),
+        #         columns = self._model.feature_names_in_
+        #     )
+        #     pred = self._model.predict(data)
 
         if isinstance(pred[0], tuple):
             return [x for x in pred]
@@ -126,7 +168,7 @@ class Model(ABC):
 
     # 0 -- 0.39 | 0.4 -- 0.6 | 0.61 -- 1
     # negatif   | neutre     | positif
-    def sentiment(x, y):
+    def sentiment(self, x, y):
         if np.abs(x-y) <= .2:
             return 'Neutral'
         elif x>y:

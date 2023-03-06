@@ -11,4 +11,4 @@ PROJECT: str = 'sentiment'
 # Versioning :
 # https://semver.org/lang/fr/
 # https://en.wikipedia.org/wiki/Software_versioning
-VERSION: Tuple[int, int, int] = (0, 2, 0)
+VERSION: Tuple[int, int, int] = (0, 2, 2)

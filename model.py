@@ -162,7 +162,10 @@ class Model(ABC):
         if isinstance(pred[0], tuple):
             return [x for x in pred]
         else:
-            return [self.sentiment(x, y) for x,y in pred]
+            if len(pred[0]) == 1:
+                return [self.sentiment(1-x, x) for x in pred]
+            else:
+                return [self.sentiment(x, y) for x,y in pred]
 
         # return [ {"sentiment": x, "phrase": y} for x,y in zip(pred, phrases)]
 

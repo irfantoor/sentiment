@@ -5,11 +5,11 @@
 # file : model.py
 
 from abc import ABC
-import sentiment.backend as Model_Backend
-import sentiment.ui as Model_UI
-import sentiment.transformer as Model_Transformer
-from sentiment.pipeline import Pipeline
-from sentiment.text import pad_sequences
+from . import backend as Model_Backend
+from . import ui as Model_UI
+from . import transformer as Model_Transformer
+from .pipeline import Pipeline
+from .text import pad_sequences
 import numpy as np
 
 class Model(ABC):

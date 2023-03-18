@@ -5,14 +5,14 @@
 # file : __init__.py
 
 # from typing import List
-from sentiment.model import Model
-from sentiment.pipeline import Pipeline
-from sentiment import backend, transformer, ui, tests
-from sentiment.setting import PROJECT, VERSION
+from .model import Model
+from .pipeline import Pipeline
+from . import backend, transformer, ui
+from .setting import PROJECT, VERSION
 
 __author__: str = 'Irfan TOOR'
 __name__: str = PROJECT
 __email__: str = 'email@irfantoor.com'
 __version__: str = '.' . join(map(str, VERSION))
 
-__all__ = ['Model','Pipeline', 'backend','transformer','ui', 'tests']
+__all__ = ['Model','Pipeline', 'backend','transformer','ui']
